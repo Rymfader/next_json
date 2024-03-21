@@ -8,6 +8,18 @@
 如果要访问get和set的属性名字,使用['get']和['set']
 否则将会获取到方法实例,赋值直接赋值即可
 
+### 初始化
+
+```python
+from next_json.next_json_obj import NextJson
+
+foo = NextJson()  # 等于NextJson({})
+foo1 = NextJson({"a": 1, "b": 2})
+foo2 = NextJson('{"a": 1, "b": 2}')
+foo3 = NextJson(a=1, b=2)
+
+```
+
 ```python
 from next_json.next_json_obj import NextJson
 
@@ -18,11 +30,13 @@ foo.a.b = 1
 foo.get = '牛逼不'
 print(foo.get('get'))
 ```
+```angular2html
+输出为: 牛逼不
+```
 
 访问和函数名相同的属性需要使用[]获取,否则将会获取到函数实例,例如foo['get']
 foo.get会获取到get函数本身,赋值可直接使用foo.get = 1赋值
 
-输出为: 牛逼不
 
 支持del删除属性,删除存在属性不会报错
 
@@ -148,7 +162,6 @@ config.arr.append(1)
 # 添加字典会被自动转换为另一个config对象,继承访问方式和修改方式
 config.obj = {}
 config.obj.c = 1
-print('objh', config.obj)
 config.obj.d = '牛逼不'
 # 不存在的属性连续调用不会报错，而是返回false
 if not config.xxx.bbb.ccc.ddd:
