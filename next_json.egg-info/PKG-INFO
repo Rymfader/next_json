@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: next_json
-Version: 0.0.1
+Version: 0.0.2
 Summary: Json and config file manage system
 Author: Rymfader
 Project-URL: Homepage, https://github.com/Rymfader/next_json
@@ -19,8 +19,40 @@ License-File: LICENSE
 支持get(键,默认值) 方法获取属性
 
 支持set(键,属性) 方法修改属性
+如果要访问get和set的属性名字,使用['get']和['set']
+否则将会获取到方法实例,赋值直接赋值即可
 
-支持del删除属性
+### 初始化
+
+```python
+from next_json.next_json_obj import NextJson
+
+foo = NextJson()  # 等于NextJson({})
+foo1 = NextJson({"a": 1, "b": 2})
+foo2 = NextJson('{"a": 1, "b": 2}')
+foo3 = NextJson(a=1, b=2)
+
+```
+
+```python
+from next_json.next_json_obj import NextJson
+
+foo = NextJson()  # 或NextJson({}) 支持python字典,json字符串,其他NextJson对象,
+# 支持NextJson(a=1,b=2) 具名参数初始化
+
+foo.a.b = 1
+foo.get = '牛逼不'
+print(foo.get('get'))
+```
+```angular2html
+输出为: 牛逼不
+```
+
+访问和函数名相同的属性需要使用[]获取,否则将会获取到函数实例,例如foo['get']
+foo.get会获取到get函数本身,赋值可直接使用foo.get = 1赋值
+
+
+支持del删除属性,删除存在属性不会报错
 
 支持迭代器获取key访问属性
 
@@ -28,7 +60,9 @@ License-File: LICENSE
 
 支持in语法判断值是否存在
 
-线程安全,save方法加锁
+支持str转json字符串
+
+支持监听属性修改获取以及删除
 
 不存在的属性连续访问返回新的空NextJson对象,
 
@@ -39,7 +73,7 @@ License-File: LICENSE
 ```python
 from next_json import NextJson
 
-obj = NextJson() # 或NextJson({})支持传入字典，或json字符串
+obj = NextJson()  # 或NextJson({})支持传入字典，或json字符串
 print(obj)
 test = obj.hh
 test.bb = 1
@@ -60,6 +94,48 @@ hh和hh2对象会在访问hh和hh2属性时创建,由于hh2没有做任何更改
 所有的不可被json序列化的值会被转换为字符串(NextJson对象除外)
 所有的dict对象的值会被自动转换为新的nextJson对象
 
+### 事件监听
+
+```python
+from next_json.next_json_obj import NextJson
+
+foo = NextJson()
+foo.on('set', lambda k, v: print(f'检测到属性修改: key={k} value={v}'))
+foo.once('set', lambda k, v: print(f'检测到属性修改(这个函数只触发一次): key={k} value={v}'))
+foo.on('get', lambda k, v: print(f'检测到属性获取: key={k} default={v}'))
+foo.on('del', lambda k: print(f'检测到属性删除: key={k}'))
+
+foo.a = 1
+foo.c.d = '牛逼'
+foo['hh'] = '非常牛逼'
+del foo.hh
+# del不存在的属性不会报错
+del foo.hh
+
+print(foo)
+```
+
+### 函数
+
+```angular2html
+get(key) 获取属性
+
+set(key,value) 设置属性
+
+to_dict() 转为python字典
+
+on(event,函数) 监听事件 event为set,get,del
+
+once(event,函数) 监听事件,只触发一次
+
+off(event,函数) 取消监听事件
+
+replace_data(data) 替换数据 data可以为python字典或json数据
+
+```
+
+### 文件管理类
+
 manager = NextConfigManager("config.json")
 
 即可得到配置文件管理对象,文件不存在自动创建
@@ -67,7 +143,7 @@ manager = NextConfigManager("config.json")
 存在则自动读取并解析json内容
 
 对manager.config对象的一切读写都会在python进程结束后自动保存
-可调用save()方法主动保存
+可调用save()方法主动保存,线程安全,save方法加锁
 
 ```python
 from next_json import NextConfigManager, JsonDictManager, NextJson
@@ -100,7 +176,6 @@ config.arr.append(1)
 # 添加字典会被自动转换为另一个config对象,继承访问方式和修改方式
 config.obj = {}
 config.obj.c = 1
-print('objh', config.obj)
 config.obj.d = '牛逼不'
 # 不存在的属性连续调用不会报错，而是返回false
 if not config.xxx.bbb.ccc.ddd:

@@ -36,8 +36,6 @@ class JsonDictManager(EventEmitter):
 
     def set(self, key, value):
         key = str(key)
-        if not self.is_json_serializable(value) and not isinstance(value, NextJson):
-            value = str(value)
         self.emit('set', key, value)
         self.__dict_data[key] = value
 
@@ -51,10 +49,18 @@ class JsonDictManager(EventEmitter):
         return key in self.__dict_data
 
     def __str__(self):
-        return json.dumps(self.to_dict(), ensure_ascii=False)
+        return json.dumps(self.to_json(), ensure_ascii=False)
 
     def __bool__(self):
         return bool(self.__dict_data)
+
+    def to_json(self):
+        converted = {}
+        for k, v in self.to_dict().items():
+            if not self.is_json_serializable(v):
+                v = str(v)
+            converted[k] = v
+        return converted
 
     def to_dict(self):
         converted = {}
@@ -82,6 +88,9 @@ class NextJson:
     def to_dict(self):
         return self.__dict_manager.to_dict()
 
+    def to_json(self):
+        return self.__dict_manager.to_json()
+
     def on(self, name, listener):
         self.__dict_manager.on(name, listener)
 
@@ -93,6 +102,12 @@ class NextJson:
 
     def replace_data(self, data):
         self.__dict_manager = JsonDictManager(data)
+
+    def items(self):
+        items_list = []
+        for key in self:
+            items_list.append((key, self[key]))
+        return items_list
 
     def __contains__(self, key):
         return key in self.__dict_manager

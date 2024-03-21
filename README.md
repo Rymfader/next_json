@@ -101,6 +101,17 @@ del foo.hh
 print(foo)
 ```
 
+#### 输出
+```angular2html
+检测到属性修改: key=a value=1
+检测到属性修改(这个函数只触发一次): key=a value=1
+检测到属性获取: key=c default={}
+检测到属性修改: key=c value={}
+检测到属性修改: key=hh value=非常牛逼
+检测到属性删除: key=hh
+{"a": 1, "c": {"d": "牛逼"}}
+```
+
 ### 函数
 
 ```angular2html
@@ -117,6 +128,8 @@ once(event,函数) 监听事件,只触发一次
 off(event,函数) 取消监听事件
 
 replace_data(data) 替换数据 data可以为python字典或json数据
+
+items() 迭代器,返回key和value,与字典相同
 
 ```
 
@@ -145,7 +158,7 @@ config = manager.config
 # 更改属性
 config.a = 'hh'
 config.b = 1
-# json不能序列化的对象会被转为字符串 {"a": "hh", "b": 1, "c": "<class '__main__.JsonDictManager'>"}
+# json不能序列化的对象在保存会被转为字符串 {"a": "hh", "b": 1, "c": "<class '__main__.JsonDictManager'>"}
 config['c'] = JsonDictManager
 config[111] = '非常牛逼'
 config['111'] = '非常牛逼2'

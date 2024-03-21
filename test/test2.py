@@ -11,8 +11,10 @@ config = manager.config
 # 更改属性
 config.a = 'hh'
 config.b = 1
-# json不能序列化的对象会被转为字符串 {"a": "hh", "b": 1, "c": "<class '__main__.JsonDictManager'>"}
+# json不能序列化的对象在保存会被转为字符串 {"a": "hh", "b": 1, "c": "<class '__main__.JsonDictManager'>"}
+# 赋值后仍然是对象本身
 config['c'] = JsonDictManager
+print('type ', type(config.c))
 config[111] = '非常牛逼'
 config['111'] = '非常牛逼2'
 # 获取属性,可使用.或者[]
