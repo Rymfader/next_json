@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: next_json
-Version: 0.0.3
+Version: 0.0.4
 Summary: Json and config file manage system
 Author: Rymfader
 Project-URL: Homepage, https://github.com/Rymfader/next_json
@@ -134,6 +134,8 @@ get(key) 获取属性
 set(key,value) 设置属性
 
 to_dict() 转为python字典
+
+to_json() 转为json字符串
 
 on(event,函数) 监听事件 event为set,get,del
 

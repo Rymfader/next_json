@@ -36,8 +36,8 @@ class JsonDictManager(EventEmitter):
 
     def set(self, key, value):
         key = str(key)
-        self.emit('set', key, value)
         self.__dict_data[key] = value
+        self.emit('set', key, value)
 
     def __delitem__(self, key):
         if key not in self.__dict_data:

@@ -106,10 +106,11 @@ print(foo)
 检测到属性修改: key=a value=1
 检测到属性修改(这个函数只触发一次): key=a value=1
 检测到属性获取: key=c default={}
-检测到属性修改: key=c value={}
+检测到属性修改: key=c value={"d": "牛逼"}
 检测到属性修改: key=hh value=非常牛逼
 检测到属性删除: key=hh
 {"a": 1, "c": {"d": "牛逼"}}
+
 ```
 
 ### 函数
