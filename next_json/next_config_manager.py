@@ -19,9 +19,10 @@ class NextConfigManager:
 
         try:
             with open(file_path, 'r') as file:
-                self.config = NextJson(file.read(), on_set)
+                self.config = NextJson(file.read())
         except FileNotFoundError:
-            self.config = NextJson({}, on_set)
+            self.config = NextJson({})
+        self.config.on('set', on_set)
 
     def save(self):
         with self.lock:

@@ -1,20 +1,23 @@
 import json
 
+from next_json.event_emitter import EventEmitter
 
-class JsonDictManager:
+
+class JsonDictManager(EventEmitter):
     __dict_data = {}
 
-    def __init__(self, value=None, on_set=None, on_get=None):
+    def __init__(self, value=None):
+        super().__init__()
         if not value:
             value = {}
         if type(value) is dict:
             self.__dict_data = value
         elif type(value) is str:
             self.__dict_data = json.loads(value)
+        elif type(value) is NextJson:
+            self.__dict_data = value.to_dict()
         else:
             raise Exception("JsonDictManager load json error")
-        self.__on_set = on_set
-        self.__on_get = on_get
 
     @staticmethod
     def is_json_serializable(data):
@@ -26,8 +29,7 @@ class JsonDictManager:
 
     def get(self, key, default=None):
         key = str(key)
-        if self.__on_get:
-            self.__on_get(key)
+        self.emit('get', key, default)
         if key in self.__dict_data:
             return self.__dict_data[key]
         return default
@@ -36,12 +38,13 @@ class JsonDictManager:
         key = str(key)
         if not self.is_json_serializable(value) and not isinstance(value, NextJson):
             value = str(value)
-
-        if self.__on_set:
-            self.__on_set(key, value)
+        self.emit('set', key, value)
         self.__dict_data[key] = value
 
     def __delitem__(self, key):
+        if key not in self.__dict_data:
+            return
+        self.emit('del', key)
         del self.__dict_data[key]
 
     def __contains__(self, key):
@@ -66,8 +69,8 @@ class NextJson:
     __dict_manager = {}
     __index = 0
 
-    def __init__(self, value=None, on_set=None, on_get=None):
-        self.__dict_manager = JsonDictManager(value, on_set, on_get)
+    def __init__(self, value=None, **values):
+        self.__dict_manager = JsonDictManager(value or values)
 
     def get(self, key, default=None):
         result = self.__getattr__(key)
@@ -78,6 +81,18 @@ class NextJson:
 
     def to_dict(self):
         return self.__dict_manager.to_dict()
+
+    def on(self, name, listener):
+        self.__dict_manager.on(name, listener)
+
+    def once(self, event_name, listener):
+        self.__dict_manager.once(event_name, listener)
+
+    def off(self, event_name, listener):
+        self.__dict_manager.off(event_name, listener)
+
+    def replace_data(self, data):
+        self.__dict_manager = JsonDictManager(data)
 
     def __contains__(self, key):
         return key in self.__dict_manager
@@ -121,7 +136,8 @@ class NextJson:
             return self.__dict__[key]
         value = self.__dict_manager.get(key, {})
         if type(value) is dict:
-            result = NextJson(value, on_set=lambda x, y: self.__dict_manager.set(key, result))
+            result = NextJson(value)
+            result.on('set', lambda x, y: self.set(key, result))
             # self.__dict_manager.set(key, result)
             return result
         return value
