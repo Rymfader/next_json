@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: next_json
-Version: 0.0.6
+Version: 0.0.8
 Summary: Json and config file manage system
 Author: Rymfader
 Project-URL: Homepage, https://github.com/Rymfader/next_json
@@ -108,24 +108,52 @@ foo.on('del', lambda k: print(f'检测到属性删除: key={k}'))
 foo.a = 1
 foo.c.d = '牛逼'
 foo['hh'] = '非常牛逼'
-del foo.hh
-# del不存在的属性不会报错
-del foo.hh
-
+print('删除属性', foo.pop('hh'))
+print('删除属性', foo.popitem())
+print('foo1', foo)
+foo.update({
+    "a": 233,
+    "c": 6666,
+    "d": {}
+})
+print('foo2', foo)
+foo.update('{"a": "哈哈哈","c": 9999999}')
+print('foo3', foo)
+foo.update(nb='非常牛逼', nb2='6666')
+print('foo4', foo)
+print('set default1', foo.set_default('nb', 1))
+print('set default2', foo.set_default('nb666', 666))
+print('values=', foo.values())
+print('keys=', foo.keys())
+print('items=', foo.items())
 print(foo)
+
+
 
 ```
 
 #### 输出
-```angular2html
+```text
 检测到属性修改: key=a value=1
 检测到属性修改(这个函数只触发一次): key=a value=1
 检测到属性获取: key=c default={} value={}
 检测到属性修改: key=c value={"d": "牛逼"}
 检测到属性修改: key=hh value=非常牛逼
+检测到属性获取: key=hh default={} value=非常牛逼
 检测到属性删除: key=hh
-{"a": 1, "c": {"d": "牛逼"}}
-
+删除属性 非常牛逼
+删除属性 ('c', <next_json.next_json_obj.NextJson object at 0x000001A2B6C72B10>)
+foo1 {"a": 1}
+foo2 {"a": 233, "c": 6666, "d": {}}
+foo3 {"a": "哈哈哈", "c": 9999999, "d": {}}
+foo4 {"a": "哈哈哈", "c": 9999999, "d": {}, "nb": "非常牛逼", "nb2": "6666"}
+set default1 False
+检测到属性修改: key=nb666 value=666
+set default2 True
+values= dict_values(['哈哈哈', 9999999, {}, '非常牛逼', '6666', 666])
+keys= dict_keys(['a', 'c', 'd', 'nb', 'nb2', 'nb666'])
+items= dict_items([('a', '哈哈哈'), ('c', 9999999), ('d', {}), ('nb', '非常牛逼'), ('nb2', '6666'), ('nb666', 666)])
+{"a": "哈哈哈", "c": 9999999, "d": {}, "nb": "非常牛逼", "nb2": "6666", "nb666": 666}
 ```
 
 ### 函数
@@ -147,8 +175,16 @@ off(event,函数) 取消监听事件
 
 replace_data(data) 替换数据 data可以为python字典或json数据
 
-items() 迭代器,返回key和value,与字典相同
 
+# 继承字典方法
+items()
+values()
+keys()
+pop(key,default=None) #删除元素,返回删除的元素,删除失败返回default
+popitem()
+update(参数) 同字典update,支持具名参数，json字符,其他nextjson对象
+copy() 复制对象
+set_default(key,value) 设置默认值,如果key不存在则设置key为value的值,成功返回True
 ```
 
 ### 文件管理类

@@ -40,11 +40,15 @@ class JsonDictManager(EventEmitter):
         self.__dict_data[key] = value
         self.emit('set', key, value)
 
-    def __delitem__(self, key):
+    def delete(self, key):
         if key not in self.__dict_data:
-            return
+            return False
         self.emit('del', key)
         del self.__dict_data[key]
+        return True
+
+    def __delitem__(self, key):
+        self.delete(key)
 
     def __contains__(self, key):
         return key in self.__dict_data
@@ -54,6 +58,9 @@ class JsonDictManager(EventEmitter):
 
     def __bool__(self):
         return bool(self.__dict_data)
+
+    def get_data(self):
+        return self.__dict_data
 
     def to_json(self):
         converted = {}
@@ -86,6 +93,12 @@ class NextJson:
     def set(self, key, value):
         return self.__setattr__(key, value)
 
+    def set_default(self, key, value=None):
+        if key in self:
+            return False
+        self[key] = value
+        return True
+
     def to_dict(self):
         return self.__dict_manager.to_dict()
 
@@ -104,11 +117,31 @@ class NextJson:
     def replace_data(self, data):
         self.__dict_manager = JsonDictManager(data)
 
+    def keys(self):
+        return self.__dict_manager.get_data().keys()
+
+    def values(self):
+        return self.__dict_manager.get_data().values()
+
     def items(self):
-        items_list = []
-        for key in self:
-            items_list.append((key, self[key]))
-        return items_list
+        return self.__dict_manager.get_data().items()
+
+    def update(self, value=None, **values):
+        update_params = NextJson(value or values)
+        return self.__dict_manager.get_data().update(update_params.to_dict())
+
+    def popitem(self):
+        return self.__dict_manager.get_data().popitem()
+
+    def copy(self):
+        return NextJson(self)
+
+    def pop(self, key, default=None):
+        result = self[key]
+        if result is None:
+            return default
+        del self[key]
+        return result
 
     def __contains__(self, key):
         return key in self.__dict_manager
