@@ -29,10 +29,11 @@ class JsonDictManager(EventEmitter):
 
     def get(self, key, default=None):
         key = str(key)
-        self.emit('get', key, default)
+        result = default
         if key in self.__dict_data:
-            return self.__dict_data[key]
-        return default
+            result = self.__dict_data[key]
+        self.emit('get', key, default, result)
+        return result
 
     def set(self, key, value):
         key = str(key)
