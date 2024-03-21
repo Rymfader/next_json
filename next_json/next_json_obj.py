@@ -49,7 +49,7 @@ class JsonDictManager(EventEmitter):
         return key in self.__dict_data
 
     def __str__(self):
-        return json.dumps(self.to_json(), ensure_ascii=False)
+        return self.to_json()
 
     def __bool__(self):
         return bool(self.__dict_data)
@@ -60,7 +60,7 @@ class JsonDictManager(EventEmitter):
             if not self.is_json_serializable(v):
                 v = str(v)
             converted[k] = v
-        return converted
+        return json.dumps(converted, ensure_ascii=False)
 
     def to_dict(self):
         converted = {}

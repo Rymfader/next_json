@@ -121,6 +121,8 @@ set(key,value) 设置属性
 
 to_dict() 转为python字典
 
+to_json() 转为json字符串
+
 on(event,函数) 监听事件 event为set,get,del
 
 once(event,函数) 监听事件,只触发一次
